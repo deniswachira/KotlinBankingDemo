@@ -10,6 +10,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xyratech.kotlinbankingdemo.ui.theme.KotlinBankingDemoTheme
@@ -41,6 +44,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun BankingDashboard(
     accountHolder: String,
@@ -48,6 +52,15 @@ fun BankingDashboard(
     balance: Double,
     transactions: List<Transaction>
 ) {
+    // Compose state
+    var currentBalance by remember {
+        mutableDoubleStateOf(balance)
+    }
+
+    var transactionHistory by remember {
+        mutableStateOf(transactions)
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
@@ -58,12 +71,11 @@ fun BankingDashboard(
                 .padding(innerPadding)
                 .padding(20.dp)
         ) {
+
             Text(
                 text = "Welcome, $accountHolder",
                 style = MaterialTheme.typography.headlineSmall
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Text(text = "Account: $accountNumber")
 
@@ -75,14 +87,59 @@ fun BankingDashboard(
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {
-                    Text(text = "Available Balance")
+                    Text("Available Balance")
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "KES ${"%,.2f".format(balance)}",
+                        text = "KES ${"%,.2f".format(currentBalance)}",
                         style = MaterialTheme.typography.headlineMedium
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Deposit and Withdraw buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                Button(
+                    onClick = {
+                        currentBalance += 1000.0
+
+                        transactionHistory = transactionHistory + Transaction(
+                            id = transactionHistory.size + 1,
+                            type = "DEPOSIT",
+                            amount = 1000.0,
+                            description = "Money deposited",
+                            isSuccessful = true
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Deposit")
+                }
+
+                Button(
+                    onClick = {
+                        if (currentBalance >= 500.0) {
+                            currentBalance -= 500.0
+
+                            transactionHistory = transactionHistory + Transaction(
+                                id = transactionHistory.size + 1,
+                                type = "WITHDRAWAL",
+                                amount = 500.0,
+                                description = "Money withdrawn",
+                                isSuccessful = true
+                            )
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Withdraw")
                 }
             }
 
@@ -96,7 +153,8 @@ fun BankingDashboard(
             Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn {
-                items(transactions) { transaction ->
+                items(transactionHistory) { transaction ->
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -107,7 +165,7 @@ fun BankingDashboard(
                             style = MaterialTheme.typography.titleMedium
                         )
 
-                        Text(text = transaction.description)
+                        Text(transaction.description)
 
                         Text(
                             text = "KES ${"%,.2f".format(transaction.amount)}"
