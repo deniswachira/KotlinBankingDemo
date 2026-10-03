@@ -4,7 +4,10 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 // This means BankViewModel inherits from Android's ViewModel class.
 class BankViewModel: ViewModel() {
@@ -14,8 +17,12 @@ class BankViewModel: ViewModel() {
         balance = 20_000.0
     )
 
+    private val repository = AccountRepository()
+
     var balance by mutableDoubleStateOf(account.getBalance())
         //Other classes can read the balance, but only the ViewModel can change it.
+        private set
+    var isLoading by mutableStateOf(false)
         private set
 
     val transactions = mutableStateListOf<Transaction>()
@@ -42,6 +49,17 @@ class BankViewModel: ViewModel() {
         account.withdraw(amount)
         balance = account.getBalance()
         transactions.add(account.getTransactions().last())
+    }
+
+    fun loadAcountBalance(){
+        viewModelScope.launch{
+            isLoading = true
+            try{
+                balance = repository.getAccountBalance()
+            }finally {
+                isLoading = false
+            }
+        }
     }
 
 }

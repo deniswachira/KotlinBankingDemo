@@ -58,7 +58,13 @@ fun BankingDashboard(
             Text(text = "Account: ${viewModel.accountNumber}")
 
             Spacer(modifier = Modifier.height(24.dp))
-
+            Button(
+                onClick = {
+                    viewModel.loadAcountBalance()
+                }
+            ) {
+                Text("Refresh Balance")
+            }
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -75,7 +81,9 @@ fun BankingDashboard(
                     )
                 }
             }
-
+            if (viewModel.isLoading) {
+                CircularProgressIndicator()
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
