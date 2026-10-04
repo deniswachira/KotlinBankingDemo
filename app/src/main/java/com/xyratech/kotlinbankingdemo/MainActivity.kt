@@ -56,8 +56,87 @@ fun BankingDashboard(
             )
 
             Text(text = "Account: ${viewModel.accountNumber}")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    viewModel.loadUserProfile()
+                }
+            ) {
+                Text("Load Remote Profile")
+            }
+            if(viewModel.isUserLoading){
+                CircularProgressIndicator()
+            }
+            viewModel.userError?.let{error ->
+                Text(
+                    text = "Error: $error",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            viewModel.userProfile?.let { user ->
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Remote User Profile",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Text("ID: ${user.id}")
+
+                        Text(
+                            text = "Name: ${user.firstName} ${user.lastName}"
+                        )
+
+                        Text("Email: ${user.email}")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    viewModel.createPost()
+                }
+            ) {
+                Text("Create Test Post")
+            }
+
+            if (viewModel.isCreatingPost) {
+                CircularProgressIndicator()
+            }
+
+            viewModel.createdPost?.let { post ->
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+
+                        Text(
+                            text = "Created Post",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Text("ID: ${post.id}")
+                        Text("Title: ${post.title}")
+                        Text("Body: ${post.body}")
+                    }
+                }
+            }
+
+           Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
                     viewModel.loadAcountBalance()
